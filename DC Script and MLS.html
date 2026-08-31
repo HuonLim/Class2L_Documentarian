@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Social Network - Production Script</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-green: #4ade80;
+            --accent-orange: #fb923c;
+            --accent-purple: #c084fc;
+            --border-color: #334155;
+            --stage-bg: rgba(56, 189, 248, 0.08);
+            --mls-bg: rgba(74, 222, 128, 0.08);
+            --dialogue-bg: rgba(255, 255, 255, 0.02);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .legend-mls { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+        .legend-sets { background: rgba(56, 189, 248, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .legend-props { background: rgba(251, 146, 60, 0.2); color: var(--accent-orange); border: 1px solid var(--accent-orange); }
+
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--accent-purple);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 1.3rem;
+            letter-spacing: 0.5px;
+        }
+
+        .roster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .roster-card {
+            background-color: rgba(255, 255, 255, 0.04);
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .scene {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            background-color: var(--card-bg);
+        }
+
+        .scene-header {
+            background-color: #0b1120;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scene-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .scene-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-blue);
+        }
+
+        .scene-timing {
+            font-size: 0.9rem;
+            color: var(--accent-purple);
+            font-weight: bold;
+        }
+
+        .scene-meta {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .scene-content {
+            padding: 20px;
+        }
+
+        .stage-note {
+            background-color: var(--stage-bg);
+            border-left: 4px solid var(--accent-blue);
+            padding: 10px 15px;
+            margin: 12px 0;
+            font-size: 0.95rem;
+            color: #e2e8f0;
+        }
+
+        .mls-note {
+            background-color: var(--mls-bg);
+            border-left: 4px solid var(--accent-green);
+            padding: 10px 15px;
+            margin: 12px 0;
+            font-size: 0.95rem;
+            color: #e2e8f0;
+        }
+
+        .between-scenes {
+            background-color: rgba(251, 146, 60, 0.08);
+            border-left: 4px solid var(--accent-orange);
+            padding: 12px 18px;
+            margin: 25px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .between-title {
+            font-weight: bold;
+            color: var(--accent-orange);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .dialogue-block {
+            margin: 14px 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: var(--dialogue-bg);
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: var(--accent-green);
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .parenthetical {
+            font-style: italic;
+            color: var(--text-muted);
+            margin: 0 4px;
+        }
+
+        .speech {
+            color: var(--text-main);
+        }
+
+        .action-text {
+            font-style: italic;
+            color: var(--text-muted);
+            margin: 8px 0 8px 20px;
+        }
+
+        .social-post {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-purple);
+            padding: 10px 15px;
+            margin: 10px 0 10px 20px;
+            font-family: monospace;
+            border-radius: 4px;
+        }
+
+        .unused-banner {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid #ef4444;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>The Social Network</h1>
+        <p style="color: var(--text-muted); margin: 0;">Production Script, Stage Management & Logistics</p>
+        <div class="legend">
+            <span class="legend-item legend-mls">MLS (Music / Lighting / Sound)</span>
+            <span class="legend-item legend-sets">Sets & Stage Crew</span>
+            <span class="legend-item legend-props">Props Management</span>
+        </div>
+    </header>
+
+    <!-- OVERVIEW & ROSTER -->
+    <div class="section">
+        <h2>Production Personnel & Set Plans</h2>
+        <div style="margin-bottom: 15px;">
+            <strong>Available People:</strong>
+            <div class="roster-grid">
+                <div class="roster-card">Yash (Props Box)</div>
+                <div class="roster-card">Ryan</div>
+                <div class="roster-card">Jungwoo</div>
+                <div class="roster-card">Dingnan</div>
+                <div class="roster-card">Caleb</div>
+                <div class="roster-card">Keefe K</div>
+                <div class="roster-card">Michael</div>
+                <div class="roster-card">Davis</div>
+                <div class="roster-card">Keegan</div>
+                <div class="roster-card">Juntong</div>
+                <div class="roster-card">Zihan</div>
+                <div class="roster-card">Noah Tyr</div>
+                <div class="roster-card">Ryu</div>
+                <div class="roster-card">Marcus</div>
+                <div class="roster-card">Reyansh</div>
+                <div class="roster-card">Ming Ze</div>
+                <div class="roster-card">Jason</div>
+                <div class="roster-card">Arham</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <strong>Set Plans:</strong>
+            <ul>
+                <li>Facebook poster in scene 1.</li>
+                <li>2 panels on the side and 1 brown cloth rolled down over the blue cloth on the center and someone put the courtroom logo on it.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- PRE-SHOW SETUP -->
+    <div class="between-scenes">
+        <div class="between-title">[BETWEEN SCENES / PRE-SHOW SETUP]</div>
+        <ul>
+            <li>Remove projection</li>
+            <li>Turn off ALL lighting</li>
+            <li>Shift rostrum to be in the center, but near the back</li>
+            <li>Set Eduardo’s seat to be beside the rostrum on the right of the rostrum</li>
+            <li>Set the twin’s seat on the right to be facing inwards 90 degrees next to each other</li>
+            <li>Set up tables with carpets</li>
+            <li>Bring cushions to place on chairs</li>
+            <li>Obtain props for: food, drinks</li>
+        </ul>
+    </div>
+
+    <!-- SCENE 1 -->
+    <div class="scene">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 1</span>
+                <span class="scene-timing">2 min 51 sec (18/8 Aug)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> Private event space.<br>
+                <strong>Context:</strong> Mark Zuckerberg is hosting a party to celebrate the success of Facebook.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">
+                <strong>MLS Cues:</strong> Project Scene1: Party Background + facebook logo banner (3x: Left, Middle, Right in audience stand). NO CLASS LIGHTS FOR SCENE 1-2.
+            </div>
+
+            <div class="action-text">Plebeians: Make noise and chatter. When Mark comes in, start clapping.</div>
+            <div class="mls-note">START MUSIC -> MUSIC off</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Welcome, everyone.</span>
+                <span class="parenthetical">(Sweep both hands over the crowd)</span>
+            </div>
+            <div class="mls-note">Floodlight white -> Spotlight on Mark</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Two years ago, I sat in a dormitory and wrote code while everyone else went out. I knew what this could be.</span>
+                <span class="parenthetical">(Point to table with intensity)</span>
+                <span class="speech">Nobody in that building did.</span>
+                <span class="parenthetical">(Slow down on nobody, emphasise it)</span>
+            </div>
+            <div class="mls-note">Brighter spotlight -> Spotlight dies back down to OG</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Before I continue, there are a few people I want to thank. Firstly, Eduardo.</span>
+            </div>
+            <div class="mls-note">Shine spotlight on Eduardo. Then back to Mark quickly.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Facebook would not be what it is today without him.</span>
+                <span class="parenthetical">(Points to Eduardo)</span>
+                <span class="speech">He believed in it from the very start, stayed by my side through thick and thin,</span>
+                <span class="parenthetical">(one palm low, one palm high)</span>
+                <span class="speech">and poured in his very best before it ever went viral. Thank you for supporting me in my journey.</span>
+            </div>
+            <div class="mls-note">Play applause sound.</div>
+            <div class="action-text">[Mark walks over to Eduardo, Eduardo stands up with a smile, shakes mark hands. Long, warm handshake to signify trust]</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">And Sean.</span>
+            </div>
+            <div class="mls-note">Change spotlight to be on Sean.</div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Sean is the reason this company is the size it is. He is also the most reliable right-hand man I know. Thank you.</span>
+            </div>
+            <div class="action-text">[He walks to Sean to shake hands]</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">When you ask me to do something, it will be done.</span>
+            </div>
+            <div class="action-text">[Sean is talking to Mark, not the people whilst they shake hands. Firm handshake to show loyalty]</div>
+            <div class="mls-note">Play applause sound. Clap after Sean’s line only. Change spotlight back to Mark.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Tonight is about what can happen when people believe in an idea. When people put their blood, sweat and tears into a vision. Every big idea started small,</span>
+                <span class="parenthetical">(open arms out first, then show squeeze)</span>
+                <span class="speech">and Facebook is proof of that. So thank you for being here. Thank you for believing in Facebook. We are just getting started.</span>
+            </div>
+            <div class="mls-note">(Brighter spotlight again)</div>
+            <div class="action-text">[Pause]</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Oh and I also want thank... Tyler.</span>
+                <span class="parenthetical">(Mark raise his hand up and hold it there to show forgetting of names)</span>
+                <span class="speech">And, uhh…</span>
+            </div>
+            <div class="mls-note">turn off WB</div>
+            <div class="action-text">[Looks down at his script] (have a pause here to show forget)</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Cameron. Yes. Cameron. They helped. A bit. At the start.</span>
+                <span class="parenthetical">(Can have both twins show physical reaction to Mark speech)</span>
+            </div>
+            <div class="action-text">[Mark leaves]</div>
+
+            <div class="mls-note">
+                MUSIC same as party, softer. Change classroom light to R2 ONLY. Turn off lighting for left and middle. Spotlight on twins. Project dimmer party background.
+            </div>
+
+            <div class="action-text">Cassius soliloquy</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">He went from being our programmer to CEO, while we’re now the stepping stones for his success.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">Mark is like a vampire. He steals what he doesn’t have from us.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">If Mark is a vampire, then we must kill! Kill this bloodsucker, Mark Zuckerberg, before he bleeds others dry.</span>
+                <span class="parenthetical">(Stare straight in front to show cold conviction)</span>
+            </div>
+            <div class="mls-note">Turn off R2, On R3 + try and make spotlights lower</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">We need somebody to help us.</span>
+                <span class="parenthetical">(Step nearer to Tyler to reason with him)</span>
+                <span class="speech">We can’t do anything to Mark right now.</span>
+                <span class="parenthetical">(Put arm over Tyler)</span>
+                <span class="speech">We aren’t even a part of Facebook, or at least they don’t think we are.</span>
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">You’re right. But I know somebody who can help us. Eduardo.</span>
+                <span class="speech">He’s a part of Facebook, and he is like a tailor. We can look imperfect and vulgar, but with him</span>
+                <span class="parenthetical">(gesture outwards)</span>,
+                <span class="speech">we would look tidy and generous.</span>
+                <span class="parenthetical">(Slow down here, and stare straight ahead for dramatic impact)</span>
+            </div>
+            <div class="mls-note">Weak spotlight on Eduardo</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">Yes, this is the way.</span>
+            </div>
+            <div class="mls-note">turn off all classroom lighting</div>
+        </div>
+    </div>
+
+    <!-- STAGE TRANSITION 1-2 -->
+    <div class="stage-note">
+        <strong>Scene 1-2 Shift Logistics:</strong>
+        <ul>
+            <li><strong>Jungwoo:</strong> Shift rostrum back more, put eduardo's seat in the center</li>
+            <li><strong>Keegan:</strong> take trash from props box and scatter litter</li>
+            <li><strong>Caleb:</strong> Lower 1 chair for messiness</li>
+            <li><strong>Davis:</strong> Tilt scene1 poster more</li>
+            <li><strong>Yash:</strong> give gregory, lucas cell phone, give lucas computer</li>
+        </ul>
+    </div>
+
+    <!-- SCENE 2 -->
+    <div class="scene">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 2</span>
+                <span class="scene-timing">5 mins 35 sec (8:28 total)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> Same as Scene 1, after the party.<br>
+                <strong>Context:</strong> The room is a mess. Almost everyone has left. Only a few dim lights are on.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">
+                FLOODLIGHTS: Warm lights change to warm + white lights (loaned from Lit teachers). NO CLASS LIGHTS FOR SCENE 1-2. PREPARE TO SHINE LIGHT ON CHRIS AND MAKE SHADOW (WHOEVER'S IN CHARGE OF LIGHTS RUN BEHIND MARK AND MAKE HIS SHADOW GO TOWARDS STAGE). SPOTLIGHT on Mark, follow Eduardo ONLY briefly. MUSIC make a bit softer.
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">I hope you enjoyed your time here, Eduardo.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I've had a great time, Mark. The party was great.</span>
+                <span class="parenthetical">(Bends down to talk to Mark to show Eduardo should not be at a higher level)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Good. I'll head off, then.</span>
+            </div>
+            <div class="action-text">(He stops.) (Put hand over Eduardo, and pretend to whisper to him)</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Be wary of the twins in the corner over there.</span>
+                <span class="parenthetical">(Gestures.)</span>
+                <span class="speech">They have a hungry look in their eyes. They've been watching me all night, but they don't even work here.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I'm sure it's nothing.</span>
+                <span class="parenthetical">(Shakes head and waves hand to show he doesn’t think much of it)</span>
+                <span class="speech">See you tomorrow.</span>
+                <span class="parenthetical">(Sits down)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="parenthetical">(walking towards Eduardo, Cameron a few steps behind)</span>
+                <span class="speech">Hello, old friend. Heard about your recent success with Facebook. Congratulations.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">Thank you.</span>
+            </div>
+            <div class="mls-note">Floodlights Warm</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">I still remember Harvard when we were all good friends.</span>
+                <span class="parenthetical">(Both sit down beside Eduardo to show they are “inferior”)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">Yeah. Those were the good old days… Anyway — what is it? Why did you stay until everyone had gone?</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">We want to talk about Mark.</span>
+                <span class="speech">You know how Facebook started; we all do. It started with our platform, HarvardConnection.</span>
+                <span class="parenthetical">(taking out his phone)</span>
+                <span class="speech">This is an email from Mark. Sent to us during the six weeks we were paying him to build our platform.</span>
+            </div>
+            <div class="mls-note">Turn on R3 and turn off R2 of classroom lights ONLY. SHINE SPOTLIGHT ON EDUARDO. Project cropped email.</div>
+            <div class="action-text">(He shows a cropped image of the email. It is projected on the screen.)</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="parenthetical">(show visible shock, opens mouth to try to argue, then Tyler interrupts)</span>
+                <span class="speech">He…</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">He said he was busy, but not with what.</span>
+                <span class="parenthetical">(Now Tyler stands up. Emphasise "not with what")</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="parenthetical">(looking closer)</span>
+                <span class="speech">This is cropped.</span>
+                <span class="parenthetical">(Sound confused, visible disbelief)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">The rest of it is an excuse. Cropped or not, the message doesn't change.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">Look - whatever happened between you and Mark, I'm sorry for it. But that's your case, not mine.</span>
+                <span class="parenthetical">(Speak with conviction to show he does not want to take part)</span>
+            </div>
+            <div class="mls-note">Project blank screen, email put away. Spotlight on Eduardo.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">Thirty-four percent. That's what you held.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">That's what I hold--</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">Held.</span>
+                <span class="parenthetical">(slight pause)</span>
+                <span class="speech">There was a share reissue in April. Everyone's stake was diluted and then topped back up. Everyone's except yours.</span>
+                <span class="parenthetical">(Speak with cold tone, emphasise except yours)</span>
+            </div>
+            <div class="mls-note">have light on Eduardo dim</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="parenthetical">(taking the phone now) (Stand up to show frustration)</span>
+                <span class="speech">That's not true! I'd know. I sign everything that comes through.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">You do. You signed this one too.</span>
+                <span class="parenthetical">(Matter-of-fact tone)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="parenthetical">(quietly)</span>
+                <span class="speech">Under one percent.</span>
+                <span class="parenthetical">(Voice fade here)</span>
+            </div>
+            <div class="mls-note">FLOODLIGHTS: WARM. PREPARE TO SHINE LIGHT ON CHRIS AND MAKE SHADOW TOWARDS STAGE.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="parenthetical">(Tyler & Cameron circle around Eduardo slowly)</span>
+                <span class="speech">Someone’s being made CEO next week. Did he tell you that? He wants to shrink you to an ant while he grows into a giant.</span>
+            </div>
+            <div class="mls-note">Shine torch behind Mark’s head, project shadow onto wall, make it grow.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">If I were you, I would rather leave than to be part of something in which only one man benefits.</span>
+                <span class="parenthetical">(Use a finger to gesture one)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">He called it his company.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">His journey.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">His money.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">As if none of us were ever in the room.</span>
+                <span class="parenthetical">(Gesture 1, 2, 3 on fingers; sweep over audience)</span>
+            </div>
+            <div class="action-text">(Pause)</div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">Isn't it strange, how the people who write his story disappears from it?</span>
+                <span class="parenthetical">(Pause)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">We're not asking you to lie. We're just asking what you already know.</span>
+            </div>
+            <div class="action-text">(A long pause.) (Eduardo looks down, reflecting)</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I'll think about it.</span>
+                <span class="parenthetical">(Slumps into chair)</span>
+            </div>
+
+            <div class="mls-note">
+                MUSIC ominous music louder. MING ZE SHINE GREGORY. Close ALL classroom lighting. Floodlights off. DIM FLASHLIGHT ON EDUARDO.
+            </div>
+            <div class="action-text">(Exeunt CAMERON and TYLER. EDUARDO remains, holding his phone.)</div>
+
+            <!-- NOTIFICATIONS -->
+            <div class="mls-note">Project first notification. BRIGHTER FLASHLIGHT on LUCAS.</div>
+            <div class="social-post">@HarvardTruth07 Lucas: Everyone at this school knows how Facebook actually started. Just ask around.</div>
+
+            <div class="mls-note">Project second notification. BRIGHTER FLASHLIGHT ON GREGORY (MING ZE).</div>
+            <div class="social-post">@CrimsonWatcher Gregory: Funny how nobody talks about HarvardConnection anymore</div>
+
+            <div class="mls-note">Project 3rd notification. BRIGHTER FLASHLIGHT ON GREGORY (MING ZE).</div>
+            <div class="social-post">@CrimsonWatcher Gregory: Since when did Facebook replace HarvardConnection?</div>
+
+            <div class="mls-note">Project 4th notification. BRIGHTER FLASHLIGHT ON EDUARDO (DO NOT POINT TO DINGNAN).</div>
+            <div class="social-post">@Justice4Harvard ding nan: Facebook did not outgrow Harvard Connection. Facebook stole from it.</div>
+
+            <div class="mls-note">Floodlights WARM. ALL FLASHLIGHTS on EDUARDO.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="parenthetical">(Eduardo soliloquy 1)</span>
+                <span class="speech">Even the public is calling him a monster. He is not just driven; he is spinning out of control. If nobody forces him to look in the mirror, he may destroy everyone around him just to keep his throne.</span>
+            </div>
+            <div class="mls-note">Project blank</div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I think of Mark as a lion cub. We must kill him while he is still not much of a threat and rather harmless.</span>
+            </div>
+
+            <div class="mls-note">
+                Project calling. TURN ON CLASSROOM R3. (Dials. Rings on speaker: "TYLER — calling…"). MUSIC softer. Spotlight on Cameron. Floodlights OFF. BRIGHTER FLASHLIGHT in Eduardo.
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="parenthetical">(voice; immediate)</span>
+                <span class="speech">Hello, Eduardo, have you decided yet?</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I have. I will join your lawsuit.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">I am glad that we were able to fire up such passion in you.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">Make no mistake --- I'm not doing this for you.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="speech">It would make sense that we sue Sean with Mark, right? He might inherit Mark's position.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">No, Tyler, we must not be excessive. Mark is the engine, Sean is the car. Without Mark, Sean is NOTHING. If we sue Sean as well, it will be overkill, and we will be seen as savage.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="parenthetical">[hesitantly]</span>
+                <span class="speech">Fine, we will have it your way.</span>
+            </div>
+            <div class="action-text">(He ends the call. The screen goes dark. Lights fade.)</div>
+            <div class="mls-note">MUSIC louder</div>
+        </div>
+    </div>
+
+    <!-- STAGE TRANSITION 2-3 -->
+    <div class="stage-note">
+        <strong>Scene 2-3 Shift Logistics:</strong>
+        <ul>
+            <li><strong>Keegan:</strong> take trash from floor and put back in props box</li>
+            <li><strong>Jungwoo:</strong> take rostrum out via door, take mics from props box onto tables/stands</li>
+            <li><strong>Yash:</strong> Bring judge stand to center, take back phones/computer</li>
+            <li><strong>Ryan:</strong> get court docs to left/right tables, roll down brown cloth over FB poster</li>
+            <li><strong>Juntong:</strong> Bring witness stand beside judge stand</li>
+            <li><strong>Caleb + Keefe:</strong> Adjust right table, change red cloth to cardboard</li>
+            <li><strong>Michael + Davis:</strong> Adjust left table, change red cloth to cardboard</li>
+            <li><strong>Ryan + Dingnan + Zihan + Noah Tyr:</strong> move courtroom background in from outside</li>
+        </ul>
+    </div>
+
+    <!-- SCENE 3 -->
+    <div class="scene">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 3</span>
+                <span class="scene-timing">5 mins 35 sec (8:28 total)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> Traditional courtroom.<br>
+                <strong>Context:</strong> Eduardo has joined the Winklevoss case against Mark and is going to testify against him.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">
+                MUSIC gradually off. Turn on ALL class lights -> Only WB and R1 CLASSROOM LIGHT ON. FLOODLIGHTS: Bright white lights x2 under witness stand. Spotlight on Witness stand & speaker.
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">JUDGE</span>
+                <span class="parenthetical">(slams gavel)</span>
+                <span class="speech">Winklevoss brothers, you have accused Mark Zuckerberg of stealing your idea of making a social network.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="parenthetical">(stands up)</span>
+                <span class="speech">That is true. We hired Mark as our programmer, but instead he</span>
+                <span class="parenthetical">(points to Mark angrily)</span>
+                <span class="speech">stole our idea while claiming that he was busy. Here is evidence.</span>
+            </div>
+            <div class="action-text">[Cameron passes cropped email image to judge]</div>
+            <div class="mls-note">Project email. Spotlight on Mark. Floodlights WHITE.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="parenthetical">(scoffs)</span>
+                <span class="speech">That email is clearly cropped. I was studying for midterms, a much better spend of my time than studying that useless dating website.</span>
+            </div>
+            <div class="mls-note">Project blank</div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">I am like the sun, and you the Earth. You can believe that the sun revolves around Earth, but it is obvious that it is you who are inferior. In this world, I do not know but one who shines as bright as the sun. And that man is me. I have shown it, by building Facebook from the ground up.</span>
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">Eduardo will back us up.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="parenthetical">(Scoffs)</span>
+                <span class="speech">I don’t know what you are on. He has been loyal to me ever since Facebook started. I have given him more than enough. He is completely satisfied with his role in Facebook.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">TYLER</span>
+                <span class="speech">Is he?</span>
+                <span class="parenthetical">(A brief smile)</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="speech">Do I have to say it twice? We met in Harvard University, even before Facebook. We are the limbs of the same body. Branches of the same tree. Facebook brought us closer together, if anything.</span>
+            </div>
+
+            <div class="action-text">Knock on door. [Eduardo walks in]</div>
+            <div class="mls-note">Switch off WB AND R1 lights. SWITCH ON R3 CLASSROOM LIGHTS ONLY.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="parenthetical">(barely audible)</span>
+                <span class="speech">You too, Eduardo?</span>
+                <span class="parenthetical">(devastated)</span>
+            </div>
+            <div class="mls-note">TURN OFF ALL CLASS LIGHTS. FLOODLIGHTS WARM.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">If we were the limbs of the same body, then Mark would be the one trying to take over the body. He diluted me from 34% to less than one. He did not just leave me in the dust, he buried me.</span>
+                <span class="speech">I have known Mark for a long time... Mark does not give people what they are owed. Whether it was my initial funding or the twin’s idea, Mark only uses it to soar high above us, until we become little dots from where he looks...</span>
+                <span class="speech">If you believe Mark is not guilty, you support wrongdoing, injustice, and dishonor. You believe that it is right to erase people from your story. If anyone supports these things, then I am wrong, and Mark is innocent.</span>
+                <span class="speech">You knew who you left behind, but you kept going anyways.</span>
+            </div>
+
+            <div class="action-text">
+                Plebeians: Murmur / commotion.<br>
+                Michael: Thief!<br>
+                Caleb: Liar!
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">JUDGE</span>
+                <span class="speech">Order! Order! Court will recess. We reconvene to continue testimony.</span>
+            </div>
+
+            <div class="mls-note">Warm lighting for SEAN soliloquy. Lights off.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">Let Eduardo have his honour. Let the twins have their verdict. My voice, like a spell, will speak the truth they tried to bury. Not through grief. Not through power. Simply by telling them what they refused to see.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAGE TRANSITION BETWEEN 3 & 5 -->
+    <div class="between-scenes">
+        <div class="between-title">[BETWEEN SCENES 3-5]</div>
+        <ul>
+            <li>Remove projection</li>
+            <li>Turn off ALL lighting</li>
+            <li>Turn on R2 and R3 ONLY</li>
+        </ul>
+        <div class="scene-timing">Transition Duration: 24 secs (12:26 total)</div>
+    </div>
+
+    <!-- SCENE 5 -->
+    <div class="scene">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 5</span>
+                <span class="scene-timing">2:30 (15:10 total)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> The courtroom, continued.<br>
+                <strong>Context:</strong> Eduardo has just finished testifying. Room heavy with murmurs. Mark sits with head down.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">Turn on WB AND R1 lights only. Spotlight on Eduardo.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I did not want to shoot Mark from the high ground he believes he is in, and I do love Mark more than anybody here, but if I did not, he would only grow and grow, until he becomes a giant, and we will become ants crawling around his feet.</span>
+            </div>
+
+            <div class="action-text">[Sean walks in as the audience applauds for Eduardo]</div>
+            <div class="mls-note">Play applause. TURN ON WB LIGHT ONLY. Spotlight on Sean.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">Can I say something?</span>
+                <span class="parenthetical">(Cut applause. Nobody stops him)</span>
+                <span class="speech">Eduardo Saverin is an honourable man. He gave nineteen thousand dollars. He believed in his friend. He showed up when no one else did. Honourable man.</span>
+                <span class="speech">Cameron and Tyler Winklevoss are honorable men. Sons of privilege, Harvard rowers, certain from birth that the world owed them exactly what they asked for. Honourable men.</span>
+                <span class="speech">And Mark Zuckerberg, according to everyone in this room tonight, is the villain of the story.</span>
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">Funny. Because the thing sitting on ten million phones right now, the thing that lets you message your mother from a dorm room in California, the thing that gave a voice to people who never had one --- that came from Mark. Not from a contract. Not from nineteen thousand dollars. From one person who saw something nobody else could see and refused to stop building it.</span>
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">Eduardo's shares were diluted. That's true. Was it clean? No. Was it explained the way it should have been? No.</span>
+                <span class="speech">Let me ask you something. When you are building something that is growing faster than anything any of you have ever seen --- do you stop and hold a meeting? Or do you keep building?</span>
+                <span class="speech">Mark kept building. Mark wanted to change the world, but Eduardo thought he would destroy it. And for that, he has been trapped and cornered by those he thought he could trust, before being slaughtered by his best friend.</span>
+            </div>
+
+            <div class="mls-note">TURN ON WB AND R1 LIGHT ONLY</div>
+            <div class="action-text">
+                Everyone boo and make chaos.<br>
+                Michael: Lazy asshole!<br>
+                Caleb: What a loser!
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">JUDGE</span>
+                <span class="speech">Order! Order!</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">CAMERON</span>
+                <span class="parenthetical">(stands)</span>
+                <span class="speech">He's twisting every word.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="parenthetical">(calmly)</span>
+                <span class="speech">I haven't twisted anything. I just said it out loud.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- STAGE TRANSITION 5-6 -->
+    <div class="stage-note">
+        <strong>Scene 5-6 Shift Logistics:</strong>
+        <ul>
+            <li><strong>Caleb + Keefe:</strong> move left table out</li>
+            <li><strong>Davis + Michael:</strong> move right table out</li>
+            <li><strong>Jungwoo:</strong> take back mics into props box</li>
+            <li><strong>Yash:</strong> Take judge stand outside; give Eduardo briefcase</li>
+            <li><strong>Ryan:</strong> Retrieve court docs, roll up brown cloth</li>
+            <li><strong>Juntong:</strong> Take witness stand out</li>
+            <li><strong>Ryan + Dingnan + Zihan + Noah Tyr:</strong> move courtroom background out</li>
+            <li><strong>Keefe + Caleb + Jungwoo + Ryu:</strong> move bench to center</li>
+            <li><strong>Reyansh:</strong> move airport stand & sign</li>
+        </ul>
+    </div>
+
+    <!-- SCENE 6 -->
+    <div class="scene">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 6</span>
+                <span class="scene-timing">2:30 (16:49 total runtime)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> John F Kennedy Airport.<br>
+                <strong>Notes:</strong> Eduardo sitting at start. Build security gate & air con aesthetic.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">
+                TURN ON ALL CLASSROOM LIGHTS. Spotlights & warm floodlights. Display departure board. SPOTLIGHT ON EDUARDO, FOLLOWING EDUARDO. JASON GO BE FLIGHT ATTENDANT. MUSIC: Sad music.
+            </div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I did the right thing. I was honorable. But even all of that was not enough to hold the position of co-founder. I thought Mark was honorable. I always looked up to him for his talent and hard work. But he turned corrupt.</span>
+            </div>
+            <div class="mls-note">TURN OFF R3 LIGHTS</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I thought the Winklevoss brothers were honorable. They got rid of that dishonourable man. But they used my name to get what they wanted. To me, there is no difference.</span>
+            </div>
+            <div class="mls-note">TURN OFF R2 LIGHTS</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">I thought Sean was honorable. But beneath his loyalty was an opportunistic man waiting to pounce at the right time.</span>
+            </div>
+            <div class="mls-note">TURN OFF R1 LIGHTS</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">They were all dishonorable. But if being honorable only and dishonorable is not enough to be a CEO, then what is? What is it that Sean Parker did that nobody else did?</span>
+            </div>
+            <div class="mls-note">TURN OFF WB LIGHTS</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">EDUARDO</span>
+                <span class="speech">He acted honorably. He was able to convince everybody that he was capable of being a CEO while not being bound by rules that held me back.</span>
+            </div>
+
+            <div class="action-text">
+                (Arham leaves, Reyansh as flight attendant. Arham hands "Ticket", exits door. Ming Ze spotlights him whole time).
+            </div>
+            <div class="mls-note">MUSIC: Slowly turn down to muted before Arham leaves. End of play, close all lighting, project blank.</div>
+            <div class="action-text">
+                Lights back to normal classroom state, actors go onto stage and bow.
+            </div>
+        </div>
+    </div>
+
+    <!-- APPENDIX / UNUSED SCENE -->
+    <div class="scene" style="border-style: dashed;">
+        <div class="scene-header">
+            <div class="scene-title-row">
+                <span class="scene-title">SCENE 4 <span class="unused-banner">NOT USED</span></span>
+                <span class="scene-timing">3:33 (Total Time 12:02)</span>
+            </div>
+            <div class="scene-meta">
+                <strong>Location:</strong> The same courtroom, during recess. Working lights only.
+            </div>
+        </div>
+        <div class="scene-content">
+            <div class="mls-note">Turn on WB lights only. Spotlight between doc and mark. Project waiver doc.</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">BOARD MEMBER</span>
+                <span class="speech">The investors want leadership changes before the round closes. Every day this runs, it costs us. You were supposed to be CEO next week. Instead, the board votes Thursday on whether to remove you.</span>
+                <span class="parenthetical">(Sets folder on table, taps once)</span>
+                <span class="speech">Sign where it's marked.</span>
+            </div>
+            <div class="dialogue-block">
+                <span class="character-name">MARK</span>
+                <span class="parenthetical">(not looking up)</span>
+                <span class="speech">Vote all you want, Facebook is nothing without me.</span>
+            </div>
+            <div class="action-text">
+                (He turns folder face down, pushes away, goes back to screen. Board member takes folder and walks away. Gallery lights up, Court reconvening).
+            </div>
+
+            <div class="mls-note">SPOTLIGHT ON SEAN</div>
+            <div class="action-text">Sean soliloquy</div>
+
+            <div class="dialogue-block">
+                <span class="character-name">SEAN</span>
+                <span class="speech">They have made you the villain, Mark. The one man who saw the whole thing before it existed, turned into a thief in a courtroom. You built it from nothing. No contract gave you that. No nineteen thousand dollar bought it. You saw something when no one else could.</span>
+                <span class="speech">Let Eduardo have his honour. Let the twins have their verdict. My voice, like a spell, will speak the truth they tried to bury. Not through grief. Not through power. Simply by telling them what they refused to see.</span>
+            </div>
+
+            <div class="mls-note">
+                Floodlights in front of Sean. [BETWEEN SCENES] Remove projection, Turn off ALL lighting. Yash take back board member docs.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
